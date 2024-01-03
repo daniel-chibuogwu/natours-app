@@ -1,0 +1,36 @@
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment
+.env
+
+# Build files
+build/
+dist/
+out/
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+.pnpm/
+.pnpm-debug.log
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# User-specific files
+npm-debug.log
+yarn-error.log
