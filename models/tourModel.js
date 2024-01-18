@@ -9,6 +9,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour duration must be provided'],
@@ -66,8 +67,9 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: Runs before the .save() and .create() and not on .insertMany()
-tourSchema.pre('save', function () {
+tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
