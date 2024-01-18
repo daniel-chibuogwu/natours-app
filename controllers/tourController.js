@@ -113,7 +113,7 @@ exports.getTourStats = async (req, res) => {
       { $match: { ratingsAverage: { $gte: 4.5 } } },
       {
         $group: {
-          _id: { $toUpper: '$difficulty' },
+          _id: { $toUpper: '$difficulty' }, //what we group by
           numTours: { $sum: 1 },
           numRatings: { $sum: '$ratingsQuantity' },
           avgRating: { $avg: '$ratingsAverage' },
@@ -125,9 +125,9 @@ exports.getTourStats = async (req, res) => {
       {
         $sort: { avgPrice: 1 },
       },
-      {
-        $match: { _id: { $ne: 'EASY' } }, // Basically exclude EASY
-      },
+      // {
+      //   $match: { _id: { $ne: 'easy' } }, // Basically exclude EASY (not equal to)
+      // },
     ]);
 
     res.status(200).json({
@@ -159,10 +159,26 @@ exports.getMonthlyPlan = async (req, res) => {
           },
         },
       },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numOfTours: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+      {
+        $addFields: { month: '$_id' },
+      },
+      {
+        $project: {
+          _id: 0, // to make the _id not show in the response
+        },
+      },
+      { $sort: { numOfTours: -1 } },
+      { $limit: 12 }, // to limit the number of data in the array
     ]);
     res.status(200).json({
       status: 'success',
-      results: plan.length,
       data: {
         plan,
       },
