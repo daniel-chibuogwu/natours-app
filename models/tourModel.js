@@ -91,7 +91,24 @@ tourSchema.pre('save', function (next) {
 
 //QUERY MIDDLEWARE
 // Here the this keyword would point at the current query and not the current document
-tourSchema.pre('find', function (next) {
+// we are using a regex here so that this would be triggered for all events that starts with find
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  // console.log(docs);
+  next();
+});
+
+//AGGREGATION MIDDLEWARE
+// "this" points to the current aggregation object
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
   next();
 });
 
