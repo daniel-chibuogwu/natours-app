@@ -55,6 +55,10 @@ const tourSchema = new mongoose.Schema(
       select: false, // To make it absent in the response
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -67,8 +71,44 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: Runs before the .save() and .create() and not on .insertMany()
+
+//We call this a Pre save hook or middleware
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// tourSchema.pre('save', function (next) {
+//   console.log('Will Save document');
+//   next();
+// });
+
+// Runs after all pre middlewares have finished running and we no longer have the "this" keyword
+// tourSchema.post('save', function (doc, next) {
+//   console.log(doc);
+//   next();
+// });
+
+//QUERY MIDDLEWARE
+// Here the this keyword would point at the current query and not the current document
+// we are using a regex here so that this would be triggered for all events that starts with find
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  // console.log(docs);
+  next();
+});
+
+//AGGREGATION MIDDLEWARE
+// "this" points to the current aggregation object
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
   next();
 });
 
