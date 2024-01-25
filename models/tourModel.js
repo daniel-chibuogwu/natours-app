@@ -93,8 +93,6 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: Runs before the .save() and .create() and not on .insertMany() or update
-
-
 //We call this a Pre save hook or middleware
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
