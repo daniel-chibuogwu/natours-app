@@ -1,3 +1,23 @@
+//Operational Errors -> CastError, ValidatorError, Duplicate Errors 1100
+
+const AppError = require('../utils/appError');
+
+const handleCastErrorDB = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
+const handleDuplicateFieldsDB = (err) => {
+  const message = `Duplicate field value: "${err.keyValue.name}". Please use another value!`;
+  return new AppError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+  const errorMessages = Object.values(err.errors).map((el) => el.message);
+  const message = `Invalid input data. ${errorMessages.join('. ')}.`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -37,6 +57,11 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    sendErrorProd(err, res);
+    //Doing this checks to make this errors operational using our AppError Class
+    let error = {};
+    if (err.name === 'CastError') error = handleCastErrorDB(err); //making it an operational error
+    if (err.code === 11000) error = handleDuplicateFieldsDB(err);
+    if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
+    sendErrorProd(error, res);
   }
 };
