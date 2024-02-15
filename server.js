@@ -23,6 +23,18 @@ mongoose
   });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
+
+// Handling unhandled Rejections GLOBALLY (FOR ASYCHRONOUS CODE) by subscribing to an event that gets trigger by the 'process' using this event listener
+process.on('unhandledRejection', (err) => {
+  console.log(`${err.name}: ${err.message}`);
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+  // Killing the server "Gracefully" by doing it like thiss
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// UNCAUGHT EXCEPTIONS: all synchronous errors or bugs caught in our code but are not handled anywhere
