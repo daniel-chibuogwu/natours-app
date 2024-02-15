@@ -16,15 +16,14 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(x);
   next();
 });
-
 // MOUNTING ROUTES
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.all('*', (req, res, next) => {
-
   next(new AppError(`Can't find ${req.originalUrl} on this server!!!🤯`, 404)); // when next receives something it automatically assumes it's an error and sends it to the global error handler for us
 
 });
