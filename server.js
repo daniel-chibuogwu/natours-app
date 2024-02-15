@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+// UNCAUGHT EXCEPTIONS: all synchronous errors or bugs caught in our code but are not handled anywhere
+// We put this at the top so that it can catch all synchronous errors in our app unlike the one for async operations
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 dotenv.config({ path: './.env' }); // reading our variables from the file to the node process.env;
 
 // Needs to run after our env config because we need the env variables for our Logger
@@ -29,12 +37,10 @@ const server = app.listen(port, () => {
 
 // Handling unhandled Rejections GLOBALLY (FOR ASYCHRONOUS CODE) by subscribing to an event that gets trigger by the 'process' using this event listener
 process.on('unhandledRejection', (err) => {
-  console.log(`${err.name}: ${err.message}`);
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.log(err.name, err.message);
   // Killing the server "Gracefully" by doing it like thiss
   server.close(() => {
     process.exit(1);
   });
 });
-
-// UNCAUGHT EXCEPTIONS: all synchronous errors or bugs caught in our code but are not handled anywhere
