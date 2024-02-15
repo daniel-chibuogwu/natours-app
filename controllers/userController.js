@@ -1,48 +1,43 @@
-const fs = require("fs");
+const User = require('../models/userModel');
+const APIFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-const users = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/users.json`, 'utf-8'));
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    status: 'success',
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
 
-exports.getAllUsers = (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        results: users.length,
-        data: {
-            users,
-        },
-    });
-}
-exports.createUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!',
-    })
-};
+exports.createUser = catchAsync(async (req, res, next) => {
+  const user = await User.create(req.body);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
 exports.getUser = (req, res) => {
-    const id = req.params.id;
-    const user = users.find((el) => el._id === id);
-    if(!user) {
-        return res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID',
-        });
-    }
-    res.status(200).json({
-        status: 'success',
-        data: {
-            user,
-        },
-    });
-}
+  res.status(200).json({
+    status: 'success',
+    data: {},
+  });
+};
 exports.updateUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!',
-    })
-}
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
 exports.deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!',
-    })
-}
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const validator = require('validator');
 
+//Schema defines the structure of documents in a MongoDB collection,
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -88,6 +89,7 @@ const tourSchema = new mongoose.Schema(
   },
 );
 
+// Virtual Property: Calculated from duration and would not be part of the DB but would come with the response.
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
@@ -133,6 +135,7 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
+//Model provides an interface for interacting with documents in that collection.
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
