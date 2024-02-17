@@ -1,3 +1,5 @@
+//Principle: Restful API must be Stateless
+
 const express = require('express');
 const morgan = require('morgan');
 
