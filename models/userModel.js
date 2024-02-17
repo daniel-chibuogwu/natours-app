@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 //Schema defines the structure of documents in a MongoDB collection,
 const userSchema = new mongoose.Schema(
@@ -41,6 +42,17 @@ const userSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+//MIDDLEWARES
+userSchema.pre('save', async function (next) {
+  // Only runs when the password and "no other field" is created or modified
+  if (!this.isModified('password')) return next();
+  // Hash the password asychronously with a cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+  // Delete passwordConfirm as we don't need it in the DB even though it's a required input
+  this.passwordConfirm = undefined;
+  // Go to next middleware
+  next();
+});
 
 //Model provides an interface for interacting with documents in that collection.
 const User = mongoose.model('User', userSchema);
