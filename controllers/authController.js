@@ -41,6 +41,7 @@ exports.login = catchAsync(async (req, res, next) => {
   // using the select() function to add Password back to the response because we exclude the password by default in User model
   const user = await User.findOne({ email }).select('+password');
 
+  // The correctPassword function is a User Model method we created for all user documents (Check userModel.js)
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password!', 401));
   }
