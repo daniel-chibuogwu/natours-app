@@ -24,14 +24,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password must be provided'],
       minLength: [8, 'Password must have at least 8 Characters'],
+      select: false, //  Hidden it from our response output
     },
     passwordConfirm: {
       type: String,
       required: [true, 'Please confirm your password'],
       validate: {
-        // This only works on CREATE and SAVE!!!
+        // This validation only works when you CREATE or SAVE!!!
         validator(el) {
-          return el === this.password; // must be ture to pass
+          return el === this.password; // must be True to pass
         },
         message: 'Passwords are not thesame',
       },
@@ -53,6 +54,14 @@ userSchema.pre('save', async function (next) {
   // Go to next middleware
   next();
 });
+
+// Creating An Instance Method on all document created with this Schema. So this method would be available on all user documents
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 //Model provides an interface for interacting with documents in that collection.
 const User = mongoose.model('User', userSchema);
