@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
+
 //Schema defines the structure of documents in a MongoDB collection,
 const userSchema = new mongoose.Schema(
   {
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
 //MIDDLEWARES
 userSchema.pre('save', async function (next) {
   // Only runs when the password and "no other field" is created or modified
@@ -62,6 +64,7 @@ userSchema.methods.correctPassword = async function (
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
+
 
 //Model provides an interface for interacting with documents in that collection.
 const User = mongoose.model('User', userSchema);
