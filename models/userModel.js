@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema(
         message: 'Passwords are not thesame',
       },
     },
+    passwordChangedAt: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -56,12 +57,24 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Creating An Instance Method on all document created with this Schema. So this method would be available on all user documents
+// Creating An Instance (document are instances of a model) Method on all document created with this Schema. So this method would be available on all user documents
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+    return JWTTimestamp < changedTimestamp; // return true or false
+  }
+  // False means NOT changed
+  return false;
 };
 
 //Model provides an interface for interacting with documents in that collection.
