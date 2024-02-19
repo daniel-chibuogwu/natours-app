@@ -11,16 +11,17 @@ const signToken = (id) =>
 
 exports.signup = catchAsync(async (req, res, next) => {
   // For security purposes we won't use req.body directly to only allow the data specified to be store in the DB
-  const { name, email, password, passwordConfirm, passwordChangedAt } =
+  const { name, email, role, password, passwordConfirm, passwordChangedAt } =
     req.body;
   const newUser = await User.create({
     name,
     email,
+    role,
     password,
     passwordConfirm,
     passwordChangedAt,
   });
-  const token = signToken(newUser._id);
+  const token = signToken(newUser._id); // using the user id as a payload for the JWT
 
   res.status(201).json({
     status: 'success',
@@ -41,7 +42,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 2) Check if user exists && password is correct
-  // using the select() function to add Password back to the response because we exclude the password by default in User model
+  // using the select() function to "add Password back" to the response because we exclude the password by default in User model
   const user = await User.findOne({ email }).select('+password');
 
   // The correctPassword function is a User Model method we created for all user documents (Check userModel.js)
@@ -94,3 +95,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser; // the req travels from one middleware to another middleware so if we want to transfer data, we put it on the req object to be available somewhere else
   next();
 });
+
+exports.restrictTo =
+  (...acceptedRoles) =>
+  (req, res, next) => {
+    // roles is an array using ES6 rest parameters - ['admin', 'lead-guide']
+    if (!acceptedRoles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+    next();
+  };
