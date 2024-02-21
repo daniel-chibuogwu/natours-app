@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -43,6 +44,8 @@ const userSchema = new mongoose.Schema(
       },
     },
     passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -50,7 +53,7 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-//MIDDLEWARES
+//////////////////   MIDDLEWARES   ////////////////
 userSchema.pre('save', async function (next) {
   // Only runs when the password and "no other field" is created or modified
   if (!this.isModified('password')) return next();
@@ -62,7 +65,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Creating An Instance (document are instances of a model) Method on all document created with this Schema. So this method would be available on all user documents
+////////////////// Creating An Instance (document are instances of a model) Method on all document created with this Schema. So this method would be available on all user documents
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
@@ -82,7 +85,20 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-//Model provides an interface for interacting with documents in that collection.
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+
+//////////////////   Model provides an interface for interacting with documents in that collection.  ///////////////////////////
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
