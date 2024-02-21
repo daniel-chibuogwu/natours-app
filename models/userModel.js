@@ -54,6 +54,8 @@ const userSchema = new mongoose.Schema(
 );
 
 //////////////////   MIDDLEWARES   ////////////////
+
+////// PASSWORD ENCRYPTION MIDDLEWARE
 userSchema.pre('save', async function (next) {
   // Only runs when the password and "no other field" is created or modified
   if (!this.isModified('password')) return next();
@@ -62,6 +64,14 @@ userSchema.pre('save', async function (next) {
   // Delete passwordConfirm as we don't need it in the DB even though it's a required input
   this.passwordConfirm = undefined;
   // Go to next middleware
+  next();
+});
+
+//////////// UPDATING THE changedPasswordAt property when password is change for 'old' and modified documents
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  // we are substracting 1s because somethings the JWT is created before this property is persisted to the DB, hence it would have a higher time than JWT and users won't be able to sign in
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -87,15 +97,12 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
-
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-
-  return resetToken;
+  return resetToken; // returning unencrypted token to be sent to users email
 };
 
 //////////////////   Model provides an interface for interacting with documents in that collection.  ///////////////////////////
