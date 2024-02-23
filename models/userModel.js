@@ -77,10 +77,10 @@ userSchema.pre('save', function (next) {
 
 ////////////////// Creating An Instance (document are instances of a model) Method on all document created with this Schema. So this method would be available on all user documents
 userSchema.methods.correctPassword = async function (
-  candidatePassword,
-  userPassword,
+  candidatePassword, // password input
+  encryptedPassword, // encrypted password in DB
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePassword, encryptedPassword);
 };
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
