@@ -11,6 +11,22 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (res, user, statusCode = 200) => {
+  const token = signToken(user._id); // using the user id as a payload for the JWT
+
+  const response = {
+    status: 'success',
+    token,
+  };
+  if (statusCode === 201) {
+    response.data = {
+      user,
+    };
+  }
+
+  res.status(statusCode).json(response);
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   // For security purposes we won't use req.body directly to only allow the data specified to be store in the DB
   const { name, email, role, password, passwordConfirm, passwordChangedAt } =
@@ -23,15 +39,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm,
     passwordChangedAt,
   });
-  const token = signToken(newUser._id); // using the user id as a payload for the JWT
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(res, newUser, 201);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -52,11 +60,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password!', 401));
   }
   // 3) If everything is okay, send 'token' to client
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(res, user);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -179,9 +183,42 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3) Update the changedPasswordAt property for the user using a 'pre'save middleware for old and modified documents (Check middlewares in userModel)
 
   // 4) Log the user in, send JWT
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(res, user);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // Even if we are protecting the route for only logged in users, we still need the user to confirm their password incase someone else is using their logged in device and wants to change their password
+  const { passwordCurrent, newPassword, newPasswordConfirm } = req.body;
+
+  if (!passwordCurrent || !newPassword || !newPasswordConfirm) {
+    return next(
+      new AppError('Please provide provide all required credientials', 400),
+    );
+  }
+
+  if (passwordCurrent === newPassword) {
+    return next(
+      new AppError(
+        'Password has already been used. Please use another password!',
+        400,
+      ),
+    );
+  }
+  // 1) Get user from the collection
+  const user = await User.findById(req.user.id).select('+password');
+
+  // 2) Check if POSTed password is correct
+  const encryptedPassword = user.password;
+  if (!(await user.correctPassword(passwordCurrent, encryptedPassword))) {
+    return next(new AppError('Your current password is wrong!', 401));
+  }
+
+  // 3) Update the password
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
+  await user.save(); // we are not using findByIdandUpdate because the validation and 'pre' middlewares is not going to work don't use update for anything relating to passwords
+  //////// Remember Password changedAt updates thanks to middleware in user model
+
+  // 4) Log user in, send JWT
+  createSendToken(res, user);
 });
