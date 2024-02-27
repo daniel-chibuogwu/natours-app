@@ -46,6 +46,11 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -72,6 +77,13 @@ userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
   // we are substracting 1s because somethings the JWT is created before this property is persisted to the DB, hence it would have a higher time than JWT and users won't be able to sign in
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+/////// Using a query middleware before getting all users so as to leave out deactivated users
+userSchema.pre(/^find/, function (next) {
+  // 'this' points to the current query
+  this.find({ active: { $ne: false } });
   next();
 });
 

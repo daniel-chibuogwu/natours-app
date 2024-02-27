@@ -35,9 +35,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
   // 2) Update the user document
   // we need to filter the body so that the user don't update anything (like role: 'admin') else asides the name and email.
-
   const filteredBody = filterObj(req.body, 'name', 'email');
-  console.log({ filteredBody });
+
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
@@ -48,18 +47,23 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+// We don't delete documents but just mark them as inactive in the database
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 exports.getUser = (req, res) => {
   res.status(200).json({
     status: 'success',
     data: {},
   });
 };
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
+
 exports.deleteUser = (req, res) => {
   res.status(500).json({
     status: 'error',
