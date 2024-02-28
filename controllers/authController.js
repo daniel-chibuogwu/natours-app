@@ -14,6 +14,19 @@ const signToken = (id) =>
 const createSendToken = (res, user, statusCode = 200) => {
   const token = signToken(user._id); // using the user id as a payload for the JWT
 
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+    httpOnly: true, // can't be accessed or modified by the browser
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // secured using https
+  res.cookie('jwt', token, cookieOptions);
+
+  // Remove The Password from the output
+  user.password = undefined;
+
   const response = {
     status: 'success',
     token,
