@@ -49,6 +49,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
 // We don't delete documents but just mark them as inactive in the database
 exports.deleteMe = catchAsync(async (req, res, next) => {
+  // remember that we get the user id from the JWT since this is a protect route that gives us access to req.user
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
   res.status(204).json({
@@ -61,12 +62,5 @@ exports.getUser = (req, res) => {
   res.status(200).json({
     status: 'success',
     data: {},
-  });
-};
-
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
   });
 };
