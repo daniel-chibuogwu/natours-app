@@ -2,6 +2,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -11,10 +14,16 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // 1) GLOBAL MIDDLEWARES
+
+// Set Security HTTP headers
+app.use(helmet());
+
+// Development Logger for terminal
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Limit request from same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -22,8 +31,19 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json());
+// Body Parser: reading data from the body into req.body
+app.use(express.json({ limit: '10kb' }));
+
+// Data sanitization against NoSQL query injection (removes $ and . operators {{'$gt': ""}}) won't work for login
+app.use(mongoSanitize());
+
+// Data sanitization against XSS: prevents some malicious HTML code
+app.use(xss()); // mongoose validation would mostly protect us and we wouldn't have to use this
+
+// Serviing Static Files
 app.use(express.static(`${__dirname}/public`));
+
+// Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
