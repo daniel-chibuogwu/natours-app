@@ -30,12 +30,13 @@ const createSendToken = (res, user, statusCode = 200) => {
   const response = {
     status: 'success',
     token,
+    data: { user },
   };
-  if (statusCode === 201) {
-    response.data = {
-      user,
-    };
-  }
+  // if (statusCode === 200) {
+  //   response.data = {
+  //     user,
+  //   };
+  // }
 
   res.status(statusCode).json(response);
 };
