@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -38,7 +39,21 @@ app.use(express.json({ limit: '10kb' }));
 app.use(mongoSanitize());
 
 // Data sanitization against XSS: prevents some malicious HTML code
-app.use(xss()); // mongoose validation would mostly protect us and we wouldn't have to use this
+app.use(xss());
+
+// Prevent Parameter Pollution (where there are duplicates parameters like for sorting it creates an array which breaks the code but this would pick the last one)
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
 
 // Serviing Static Files
 app.use(express.static(`${__dirname}/public`));
