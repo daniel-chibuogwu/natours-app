@@ -42,6 +42,7 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Prevent Parameter Pollution (where there are duplicates parameters like for sorting it creates an array which breaks the code but this would pick the last one)
+// We are whitelisting so that we can still filter when this parameters are set multiple times.
 app.use(
   hpp({
     whitelist: [
