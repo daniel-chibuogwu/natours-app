@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const validator = require('validator');
 
-const User = require('./userModel');
-
 //Schema defines the structure of documents in a MongoDB collection,
 const tourSchema = new mongoose.Schema(
   {
@@ -109,7 +107,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -129,12 +127,13 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// To Embeb Guides
-tourSchema.pre('save', async function (next) {
-  const guidesPromises = this.guides.map(async (id) => await User.findById(id));
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+// To Embed Guides
+// tourSchema.pre('save', async function (next) {
+//   // Payload looks like this -> "guides": ["65da4729a249bccea0150e08", "65ea620aa434fd27967f1dc5"]
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 // tourSchema.pre('save', function (next) {
 //   console.log('Will Save document');
@@ -153,6 +152,15 @@ tourSchema.pre('save', async function (next) {
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  // with populate we are going to fill our query with the referenced data for guides and it's makes another query which can affect performance
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 
