@@ -110,7 +110,7 @@ const tourSchema = new mongoose.Schema(
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
-    toJSON: { virtuals: true },
+    toJSON: { virtuals: true }, // This options are important for us to use virtual properties
     toObject: { virtuals: true },
   },
 );

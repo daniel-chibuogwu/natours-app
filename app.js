@@ -11,9 +11,9 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
-
 // 1) GLOBAL MIDDLEWARES
 
 // Set Security HTTP headers
@@ -67,6 +67,7 @@ app.use((req, res, next) => {
 // MOUNTING ROUTES
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!!!🤯`, 404)); // when next receives something it automatically assumes it's an error and sends it to the global error handler for us
