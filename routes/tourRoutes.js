@@ -24,7 +24,7 @@ router
   .get(tourController.getTour)
   .patch(tourController.updateTour)
   .delete(
-    authController.protect, // must run before retrictTo because of user info
+    authController.protect, // must run before retrictTo because of user info that is added in req and needed in the restrictTo middleware
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour,
   );

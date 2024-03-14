@@ -119,7 +119,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 exports.restrictTo =
   (...acceptedRoles) =>
   (req, res, next) => {
-    // roles is an array using ES6 rest parameters - ['admin', 'lead-guide']
+    // roles is an array using ES6 rest parameters any parameter passed becomes an array- ['admin', 'lead-guide']
     if (!acceptedRoles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403),
