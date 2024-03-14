@@ -35,10 +35,14 @@ const reviewSchema = new mongoose.Schema(
 
 // QUERY MIDDLEWARES
 reviewSchema.pre(/^find/, function (next) {
+  //   this.populate({
+  //     path: 'tour',
+  //     select: 'name',
+  //   }).populate({
+  //     path: 'user',
+  //     select: 'name photo', // only send relevant data about the user, we don't leak things like their emails and so on
+  //   });
   this.populate({
-    path: 'tour',
-    select: 'name',
-  }).populate({
     path: 'user',
     select: 'name photo', // only send relevant data about the user, we don't leak things like their emails and so on
   });
