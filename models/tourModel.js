@@ -121,6 +121,7 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // Virtual Populating our Tours with reviews (it wouldn't persist the reviews as children to our tour document in the DB )
+// To use this, don't forget to turn add call .populate on the query you want to have access to this fields else it wouldn't show.
 tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour', // where the tour ID is specified in the review model
