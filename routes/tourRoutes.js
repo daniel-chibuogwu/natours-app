@@ -1,12 +1,15 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
-const reviewRouter = require('../routes/reviewRoutes');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
 // Param middleware that runs for a specific route param
 // router.param('id', tourController.checkID);
+
+// We use mergeParams on the review router to make this 'redirecting' work
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-5-cheap')
@@ -29,18 +32,5 @@ router
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour,
   );
-
-// Nested Routes examples
-// POST - /tour/837337/reviews
-// GET - /tour/837337/reviews
-// GET - /tour/837337/reviews/93993837 - Get a particular review on a tour
-
-// router
-//   .route('/:tourId/reviews')
-//   .post(
-//     authController.protect,
-//     authController.restrictTo('user'),
-//     reviewController.createReview,
-//   );
 
 module.exports = router;

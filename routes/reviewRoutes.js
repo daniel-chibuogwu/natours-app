@@ -2,17 +2,20 @@ const express = require('express');
 const reviewController = require('../controllers/reviewController');
 const authController = require('../controllers/authController');
 
-const router = express.Router();
+// We used mergeParams so that we can merge and have access to the params coming from /tours/838383/reviews i.e the tourId without having to specify it here
+const router = express.Router({ mergeParams: true });
 
-router.route('/').get(reviewController.getAllReviews).post(
-  authController.protect, // must run first before we need user info for the restrictTo middleware
-  authController.restrictTo('user'), // to prevent admins and guides from creating reviews
-  reviewController.createReview,
-);
+router
+  .route('/')
+  .get(reviewController.getAllReviews)
+  .post(
+    authController.protect,
+    authController.restrictTo('user'),
+    reviewController.createReview,
+  );
 
 module.exports = router;
 
 // Nested Routes examples
 // POST - /tour/837337/reviews
 // GET - /tour/837337/reviews
-// GET - /tour/837337/reviews/93993837 - Get a particular review on a tour
