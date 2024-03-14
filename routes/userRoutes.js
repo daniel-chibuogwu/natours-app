@@ -15,8 +15,15 @@ router.patch(
   authController.updatePassword,
 );
 router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
+router.delete('/deleteMe', authController.protect, userController.deleteMe); // For the user and does not delete from the DB but set's active to false
 
-router.route('/').get(userController.getAllUsers);
+router.route('/').get(userController.getAllUsers).delete();
+// Permanentely Delete User from DB by only the Admin
+router.delete(
+  '/:id',
+  authController.protect,
+  authController.restrictTo('admin'),
+  userController.deleteUser,
+);
 
 module.exports = router;
