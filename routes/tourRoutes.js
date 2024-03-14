@@ -21,7 +21,7 @@ router
 
 router
   .route('/:id')
-  .get(tourController.getTour)
+  .get(authController.protect, tourController.getTour)
   .patch(tourController.updateTour)
   .delete(
     authController.protect, // must run before retrictTo because of user info that is added in req and needed in the restrictTo middleware

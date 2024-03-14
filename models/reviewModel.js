@@ -34,14 +34,15 @@ const reviewSchema = new mongoose.Schema(
 );
 
 // QUERY MIDDLEWARES
-reviewSchema.pre(/^find/, function () {
+reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'tour',
-    select: '-__v',
+    select: 'name',
   }).populate({
     path: 'user',
-    select: '-__v',
+    select: 'name photo', // only send relevant data about the user, we don't leak things like their emails and so on
   });
+  next();
 });
 
 const Review = mongoose.model('Review', reviewSchema);

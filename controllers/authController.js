@@ -111,7 +111,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // GRANT ACCESS TO PROTECTED ROUTE
+  // GRANT ACCESS TO PROTECTED ROUTE and add the current user to the req object
   req.user = currentUser; // the req travels from one middleware to another middleware so if we want to transfer data, we put it on the req object to be available somewhere else
   next();
 });

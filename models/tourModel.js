@@ -120,6 +120,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// Virtual Populating our Tours with reviews (it wouldn't persist the reviews as children to our tour document in the DB )
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // where the tour ID is specified in the review model
+  localField: '_id', // the id in the tour model
+});
+
 // DOCUMENT MIDDLEWARE: Runs before the .save() and .create() and not on .insertMany() or update
 //We call this a Pre save hook or middleware
 tourSchema.pre('save', function (next) {
