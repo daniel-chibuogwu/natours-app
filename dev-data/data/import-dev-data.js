@@ -5,6 +5,8 @@ const Tour = require('../../models/tourModel');
 const User = require('../../models/userModel');
 const Review = require('../../models/reviewModel');
 
+// PASSWORD for all USERS is - test1234
+
 dotenv.config({ path: './.env' });
 
 // Connect to DB
