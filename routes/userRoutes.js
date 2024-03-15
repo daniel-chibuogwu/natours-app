@@ -22,6 +22,11 @@ router.route('/').get(userController.getAllUsers).delete();
 // Permanentely Delete or Update User from DB by only the Admin
 router
   .route('/:id')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.getUser,
+  )
   .patch(
     authController.protect,
     authController.restrictTo('admin'),
