@@ -18,6 +18,11 @@ exports.getUser = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   // Remember that we get the user from req.user when using a 'Protected Route' by adding it as a middleware at the route definition
   // 1) Create error if user POSTs password data

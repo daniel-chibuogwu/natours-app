@@ -14,6 +14,13 @@ router.patch(
   authController.protect,
   authController.updatePassword,
 );
+
+router.get(
+  '/me',
+  authController.protect,
+  userController.getMe, // This middleware would fake it as if the id is coming from the params
+  userController.getUser,
+);
 router.patch('/updateMe', authController.protect, userController.updateMe);
 router.delete('/deleteMe', authController.protect, userController.deleteMe); // For the user and does not delete from the DB but set's active to false
 
