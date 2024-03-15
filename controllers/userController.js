@@ -1,5 +1,4 @@
 const User = require('../models/userModel');
-const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
@@ -67,4 +66,7 @@ exports.getUser = (req, res) => {
   });
 };
 
+// Only For Admin
+// Don't try to change PASSWORD using this update controller because all the 'save' middlewares would not run
+exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

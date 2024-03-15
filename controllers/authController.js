@@ -94,7 +94,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // Error from here is handled Globally
 
   // 3) Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id); // if you delete a user it find it because we set it's active to false
   if (!currentUser) {
     return next(
       new AppError(
