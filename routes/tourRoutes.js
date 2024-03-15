@@ -8,25 +8,40 @@ const router = express.Router();
 // Param middleware that runs for a specific route param
 // router.param('id', tourController.checkID);
 
-// We use mergeParams on the review router to make this 'redirecting' work
+// Nested Routes -  We use mergeParams on the review router to make this 'redirecting' work
 router.use('/:tourId/reviews', reviewRouter);
 
+// Aggregations
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route('/tour-stats').get(tourController.getTourStats);
-router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+router
+  .route(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    '/monthly-plan/:year',
+  )
+  .get(tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.createTour,
+  );
 
 router
   .route('/:id')
-  .get(authController.protect, tourController.getTour)
-  .patch(tourController.updateTour)
+  .get(tourController.getTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour,
+  )
   .delete(
     authController.protect, // must run before retrictTo because of user info that is added in req and needed in the restrictTo middleware
     authController.restrictTo('admin', 'lead-guide'),

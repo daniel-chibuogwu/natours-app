@@ -6,43 +6,25 @@ const router = express.Router();
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
-
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
-router.patch(
-  '/updateMyPassword',
-  authController.protect,
-  authController.updatePassword,
-);
 
-router.get(
-  '/me',
-  authController.protect,
-  userController.getMe, // This middleware would fake it as if the id is coming from the params
-  userController.getUser,
-);
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe); // For the user and does not delete from the DB but set's active to false
+// Protect all routes after this middleware
+router.use(authController.protect);
 
-router.route('/').get(userController.getAllUsers).delete();
+router.get('/me', userController.getMe, userController.getUser);
+router.patch('/updateMyPassword', authController.updatePassword);
+router.patch('/updateMe', userController.updateMe);
+router.delete('/deleteMe', userController.deleteMe); // For the user and does not delete from the DB but set's active to false
 
-// Permanentely Delete or Update User from DB by only the Admin
+// Restrict all routes after this middleware to Admin
+router.use(authController.restrictTo('admin'));
+
+router.get('/', userController.getAllUsers);
 router
   .route('/:id')
-  .get(
-    authController.protect,
-    authController.restrictTo('admin'),
-    userController.getUser,
-  )
-  .patch(
-    authController.protect,
-    authController.restrictTo('admin'),
-    userController.updateUser,
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin'),
-    userController.deleteUser,
-  );
+  .get(userController.getUser)
+  .patch(userController.updateUser)
+  .delete(userController.deleteUser);
 
 module.exports = router;
