@@ -5,11 +5,13 @@ const authController = require('../controllers/authController');
 // We used mergeParams so that we can merge and have access to the params coming from /tours/838383/reviews i.e the tourId without having to specify it here
 const router = express.Router({ mergeParams: true });
 
+// All routes after this middleware are PROTECTED --------------------------------------------------------------------------------------
+router.use(authController.protect);
+
 router
   .route('/')
   .get(reviewController.getAllReviews)
   .post(
-    authController.protect,
     authController.restrictTo('user'),
     reviewController.setTourUserIds,
     reviewController.createReview,
@@ -18,8 +20,14 @@ router
 router
   .route('/:id')
   .get(reviewController.getReview)
-  .patch(reviewController.updateReview)
-  .delete(reviewController.deleteReview);
+  .patch(
+    authController.restrictTo('user', 'admin'),
+    reviewController.updateReview,
+  )
+  .delete(
+    authController.restrictTo('user', 'admin'),
+    reviewController.deleteReview,
+  );
 
 module.exports = router;
 

@@ -9,7 +9,7 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
-// Protect all routes after this middleware
+// Protect all routes after this middleware -------------------------------------------------------------------------------------------------------------------------------
 router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
@@ -17,7 +17,7 @@ router.patch('/updateMyPassword', authController.updatePassword);
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe); // For the user and does not delete from the DB but set's active to false
 
-// Restrict all routes after this middleware to Admin
+// Restrict all routes after this middleware to Admin ---------------------------------------------------
 router.use(authController.restrictTo('admin'));
 
 router.get('/', userController.getAllUsers);

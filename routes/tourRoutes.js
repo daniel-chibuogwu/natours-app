@@ -12,18 +12,19 @@ const router = express.Router();
 router.use('/:tourId/reviews', reviewRouter);
 
 // Aggregations
-router
-  .route('/top-5-cheap')
-  .get(tourController.aliasTopTours, tourController.getAllTours);
+router.get(
+  '/top-5-cheap',
+  tourController.aliasTopTours,
+  tourController.getAllTours,
+);
 
-router.route('/tour-stats').get(tourController.getTourStats);
-router
-  .route(
-    authController.protect,
-    authController.restrictTo('admin', 'lead-guide', 'guide'),
-    '/monthly-plan/:year',
-  )
-  .get(tourController.getMonthlyPlan);
+router.get('/tour-stats', tourController.getTourStats);
+router.get(
+  '/monthly-plan/:year',
+  authController.protect,
+  authController.restrictTo('admin', 'lead-guide', 'guide'),
+  tourController.getMonthlyPlan,
+);
 
 router
   .route('/')
