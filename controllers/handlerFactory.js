@@ -83,6 +83,7 @@ exports.getAll = Model =>
       .paginate();
 
     // EXECUTE QUERY
+    // const docs = await features.query.explain();
     const docs = await features.query;
     // We are not handle errors for this before even if the tours.lenght is 0 it is still a valid response and not an error when we find nothing
     // SEND RESPONSE
