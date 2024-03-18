@@ -39,6 +39,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, 'Rating must be above 1.0'],
       max: [5, 'Rating must be below 5.0'],
+      set: val => Math.round(val * 10) / 10, // This runs everytime a new value is set for this field // Math.rounds gives an integer, hence the trick to get the decimal to 1.d.p
     },
     ratingsQuantity: {
       type: Number,
@@ -110,14 +111,27 @@ const tourSchema = new mongoose.Schema(
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
-    toJSON: { virtuals: true },
+    toJSON: { virtuals: true }, // This options are important for us to use virtual properties
     toObject: { virtuals: true },
   },
 );
 
+// Improving Read Performance with Indexes
+// tourSchema.index({ price: 1 }); // 1 meeans ascending order and -1 means descending order
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // Virtual Property: Calculated from duration and would not be part of the DB but would come with the response.
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
+});
+
+// Virtual Populating our Tours with reviews (it wouldn't persist the reviews as children to our tour document in the DB )
+// To use this, don't forget to turn add call .populate on the query you want to have access to this fields else it wouldn't show.
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // where the tour ID is specified in the review model
+  localField: '_id', // the id in the tour model
 });
 
 // DOCUMENT MIDDLEWARE: Runs before the .save() and .create() and not on .insertMany() or update

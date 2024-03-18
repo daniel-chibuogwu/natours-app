@@ -94,7 +94,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // Error from here is handled Globally
 
   // 3) Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id); // if you delete a user it find it because we set it's active to false
   if (!currentUser) {
     return next(
       new AppError(
@@ -111,7 +111,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // GRANT ACCESS TO PROTECTED ROUTE
+  // GRANT ACCESS TO PROTECTED ROUTE and add the current user to the req object
   req.user = currentUser; // the req travels from one middleware to another middleware so if we want to transfer data, we put it on the req object to be available somewhere else
   next();
 });
@@ -119,7 +119,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 exports.restrictTo =
   (...acceptedRoles) =>
   (req, res, next) => {
-    // roles is an array using ES6 rest parameters - ['admin', 'lead-guide']
+    // roles is an array using ES6 rest parameters any parameter passed becomes an array- ['admin', 'lead-guide']
     if (!acceptedRoles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403),

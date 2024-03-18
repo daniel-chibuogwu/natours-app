@@ -80,7 +80,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-/////// Using a query middleware before getting all users so as to leave out deactivated users
+/////// Using a query middleware before getting all users so as to leave out deactivated or deleted users
 userSchema.pre(/^find/, function (next) {
   // 'this' points to the current query
   this.find({ active: { $ne: false } });

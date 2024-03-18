@@ -7,10 +7,10 @@ class APIFeatures {
   filter() {
     const queryObj = { ...this.queryString }; // to avoid mutating the request object
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    excludedFields.forEach(el => delete queryObj[el]);
     // 1b) ADVANCED FILTERING
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
@@ -36,7 +36,7 @@ class APIFeatures {
   }
 
   paginate() {
-    const page = this.queryString.page * 1 || 1;
+    const page = this.queryString.page * 1 || 1; // * 1 is to convert to number form string
     const limit = this.queryString.limit * 1 || 10;
     const skipValue = (page - 1) * limit;
     this.query = this.query.skip(skipValue).limit(limit);
