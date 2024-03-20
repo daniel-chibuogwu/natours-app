@@ -34,7 +34,7 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
-// Using indexes to make sure that a user can only review a tour once by making sure each review have unique mixture of tourID and userID. Meaning that: NO TWO review can have the tour and user
+// Making sure that NO TWO review can have thesame tourID and userID using unique compoound indexes
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 // QUERY MIDDLEWARES
