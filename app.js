@@ -16,6 +16,7 @@ const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
+// Setings for Pug
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -68,10 +69,14 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
+
 // MOUNTING ROUTES
-// For PUG Templates
+// Mount for pug templates
 app.get('/', (req, res) => {
-  res.status(200).render('base');
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker',
+    user: 'Chillings',
+  });
 });
 
 app.use('/api/v1/tours', tourRouter);
