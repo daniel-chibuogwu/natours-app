@@ -188,11 +188,11 @@ tourSchema.post(/^find/, function (docs, next) {
 
 //AGGREGATION MIDDLEWARE
 // "this" points to the current aggregation object
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
-  next();
-});
+// tourSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   console.log(this.pipeline());
+//   next();
+// });
 
 //Model provides an interface for interacting with documents in that collection.
 const Tour = mongoose.model('Tour', tourSchema);
