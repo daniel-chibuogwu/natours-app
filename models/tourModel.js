@@ -147,7 +147,7 @@ tourSchema.pre('save', function (next) {
 // tourSchema.pre('save', async function (next) {
 //   // Payload looks like this -> "guides": ["65da4729a249bccea0150e08", "65ea620aa434fd27967f1dc5"]
 //   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
-//   this.guides = await Promise.all(guidesPromises);
+//   this.guides = await Promise.all(guidesPromises); // the embedding happens here setting by adding guides to the 'this' object
 //   next();
 // });
 
