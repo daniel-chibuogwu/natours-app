@@ -27,8 +27,13 @@ exports.getTour = catchAsync(async (req, res, next) => {
     return next(new AppError('Tour not found!', 404));
   }
 
+  res.setHeader(
+    'Content-Security-Policy',
+    "worker-src 'self' blob: https://api.mapbox.com;",
+  ); // Add blob URL to worker-src
+
   res.status(200).render('tour', {
-    title: tour.name,
+    title: `${tour.name} Tour`,
     tour,
   });
 });
