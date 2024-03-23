@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -43,6 +44,8 @@ app.use('/api', limiter);
 
 // Body Parser: reading data from the body into req.body
 app.use(express.json({ limit: '10kb' }));
+// Parse cookies
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection (removes $ and . operators {{'$gt': ""}}) won't work for login
 app.use(mongoSanitize());
@@ -68,6 +71,17 @@ app.use(
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  // console.log(req.cookies);
+  next();
+});
+
+// Middleware to fix Security Policy issues
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "script-src 'self' https://cdn.jsdelivr.net",
+  );
+
   next();
 });
 
