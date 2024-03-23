@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
+// Always specify the next parameter before we need it to catch the errors if any
 exports.getOverview = catchAsync(async (req, res, next) => {
   // 1. Get Tour data from collection
   const tours = await Tour.find();
@@ -12,7 +13,7 @@ exports.getOverview = catchAsync(async (req, res, next) => {
   // 3. Render that template using the tour data
   // overview is the name of the template file i.e overview.pug
   res.status(200).render('overview', {
-    title: 'All Tours',
+    title: 'All Tours', // The base.pug template has access to this object since it was extended and uses the title as the tab tile for the HTML
     tours,
   });
 });
@@ -35,5 +36,11 @@ exports.getTour = catchAsync(async (req, res, next) => {
   res.status(200).render('tour', {
     title: `${tour.name} Tour`,
     tour,
+  });
+});
+
+exports.getLoginForm = catchAsync(async (req, res, next) => {
+  res.status(200).render('login', {
+    title: 'Log into your account',
   });
 });
