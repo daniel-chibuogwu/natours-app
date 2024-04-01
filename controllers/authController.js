@@ -239,7 +239,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 });
 
 // Only for rendered pages and no error!
-exports.isLogged = catchAsync(async (req, res, next) => {
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it's there
   if (req.cookies.jwt) {
     // 2) Verification of token
@@ -260,7 +260,9 @@ exports.isLogged = catchAsync(async (req, res, next) => {
     }
 
     // There is a logged in User
-    req.user = currentUser;
-    next();
+    // making it available to our templates. We can access res.locals in our templates
+    res.locals.user = currentUser;
+    return next();
   }
+  next();
 });
