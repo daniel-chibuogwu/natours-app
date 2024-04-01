@@ -237,3 +237,32 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // 4) Log user in, send JWT
   createSendToken(res, user);
 });
+
+// Only for rendered pages and no error!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check if it's there
+  if (req.cookies.jwt) {
+    // 2) Verification of token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET,
+    ); // Error from here is handled Globally
+
+    // 3) Check if user still exists
+    const currentUser = await User.findById(decoded.id); // if you delete a user it find it because we set it's active to false
+    if (!currentUser) {
+      return next();
+    }
+
+    // 4) Check if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+
+    // There is a logged in User
+    // making it available to our templates. We can access res.locals in our templates
+    res.locals.user = currentUser;
+    return next();
+  }
+  next();
+});
