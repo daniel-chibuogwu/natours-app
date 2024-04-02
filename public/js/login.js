@@ -1,13 +1,16 @@
 /* eslint-disable */
+import '@babel/polyfill';
+import axios from 'axios';
+import { showAlert } from './alert';
 
-const login = async (email, password) => {
+export const login = async (email, password) => {
   try {
     const res = await axios.post('http://localhost:3000/api/v1/users/login', {
       email,
       password,
     });
     if (res.data.status === 'success') {
-      alert('Logged in successfully!');
+      showAlert('success', 'Logged in successfully!');
       // Routing user to the homepage to refresh and show updated nav bar
       window.setTimeout(() => {
         location.assign('/');
@@ -15,14 +18,15 @@ const login = async (email, password) => {
     }
   } catch (err) {
     console.log(err);
-    alert(err.response.data.message);
+    showAlert('error', err.response.data.message);
   }
 };
 
-document.querySelector('.form').addEventListener('submit', e => {
-  e.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  login(email, password);
-});
+export const logout = async () => {
+  try {
+    const res = await axios.get('http://localhost:3000/api/v1/users/logout');
+    if (res.data.status === 'success') location.reload(true);
+  } catch (err) {
+    showAlert('error', 'Error logging out! Try again.');
+  }
+};
