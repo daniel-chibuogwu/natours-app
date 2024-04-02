@@ -250,7 +250,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(res, user);
 });
 
-// Only for rendered pages and no error!
+// Only for rendered pages and shouldn’t send errors!
 exports.isLoggedIn = async (req, res, next) => {
   // 1) Getting token and check if it's there
   if (req.cookies.jwt) {
@@ -281,3 +281,4 @@ exports.isLoggedIn = async (req, res, next) => {
   }
   next();
 };
+
