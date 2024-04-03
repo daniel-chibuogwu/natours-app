@@ -54,6 +54,7 @@ if (userPasswordForm) {
       newPassword: newPasswordInput.value,
       newPasswordConfirm: newPasswordConfirmInput.value,
     });
+
     // RESETTING THE FIELDS
     savePasswordBtn.textContent = 'Save password';
     passwordCurrentInput.value = '';
