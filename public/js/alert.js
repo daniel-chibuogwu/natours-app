@@ -10,6 +10,7 @@ export const hideAlert = () => {
 // type is 'success' or 'error'
 export const showAlert = (type, msg) => {
   hideAlert();
+
   const markup = `<div class="alert alert--${type}">${msg}</div>`;
   const body = document.querySelector('body');
   body.insertAdjacentHTML('afterbegin', markup);
