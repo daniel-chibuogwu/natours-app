@@ -13221,30 +13221,31 @@ if (userPasswordForm) {
     var _ref = _asyncToGenerator(
     /*#__PURE__*/
     _regeneratorRuntime().mark(function _callee(e) {
-      var passwordCurrent, newPassword, newPasswordConfirm;
+      var savePasswordBtn, passwordCurrentInput, newPasswordInput, newPasswordConfirmInput;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             e.preventDefault();
-            document.querySelector('.btn--save-password').textContent = 'Updating...';
-            passwordCurrent = document.getElementById('password-current').value;
-            newPassword = document.getElementById('password').value;
-            newPasswordConfirm = document.getElementById('password-confirm').value;
-            _context.next = 7;
+            savePasswordBtn = document.querySelector('.btn--save-password');
+            passwordCurrentInput = document.getElementById('password-current');
+            newPasswordInput = document.getElementById('password');
+            newPasswordConfirmInput = document.getElementById('password-confirm');
+            savePasswordBtn.textContent = 'Updating...';
+            _context.next = 8;
             return (0, _updateSettings.updateSettings)('password', {
-              passwordCurrent: passwordCurrent,
-              newPassword: newPassword,
-              newPasswordConfirm: newPasswordConfirm
+              passwordCurrent: passwordCurrentInput.value,
+              newPassword: newPasswordInput.value,
+              newPasswordConfirm: newPasswordConfirmInput.value
             });
 
-          case 7:
+          case 8:
             // RESETTING THE FIELDS
-            document.querySelector('.btn--save-password').textContent = 'Save password';
-            document.getElementById('password-current').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('password-confirm').value = '';
+            savePasswordBtn.textContent = 'Save password';
+            passwordCurrentInput.value = '';
+            newPasswordInput.value = '';
+            newPasswordConfirmInput.value = '';
 
-          case 11:
+          case 12:
           case "end":
             return _context.stop();
         }

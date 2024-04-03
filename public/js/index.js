@@ -42,21 +42,22 @@ if (userDataForm) {
 if (userPasswordForm) {
   userPasswordForm.addEventListener('submit', async e => {
     e.preventDefault();
-    document.querySelector('.btn--save-password').textContent = 'Updating...';
-    const passwordCurrent = document.getElementById('password-current').value;
-    const newPassword = document.getElementById('password').value;
-    const newPasswordConfirm =
-      document.getElementById('password-confirm').value;
+    const savePasswordBtn = document.querySelector('.btn--save-password');
+    const passwordCurrentInput = document.getElementById('password-current');
+    const newPasswordInput = document.getElementById('password');
+    const newPasswordConfirmInput = document.getElementById('password-confirm');
+
+    savePasswordBtn.textContent = 'Updating...';
 
     await updateSettings('password', {
-      passwordCurrent,
-      newPassword,
-      newPasswordConfirm,
+      passwordCurrent: passwordCurrentInput.value,
+      newPassword: newPasswordInput.value,
+      newPasswordConfirm: newPasswordConfirmInput.value,
     });
     // RESETTING THE FIELDS
-    document.querySelector('.btn--save-password').textContent = 'Save password';
-    document.getElementById('password-current').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('password-confirm').value = '';
+    savePasswordBtn.textContent = 'Save password';
+    passwordCurrentInput.value = '';
+    newPasswordInput.value = '';
+    newPasswordConfirmInput.value = '';
   });
 }
