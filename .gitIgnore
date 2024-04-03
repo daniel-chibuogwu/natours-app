@@ -9,6 +9,7 @@ yarn-error.log
 build/
 dist/
 out/
+.cache/
 
 # Logs
 logs/
