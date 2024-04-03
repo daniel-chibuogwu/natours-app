@@ -2,11 +2,14 @@
 
 import { displayMap } from './mapbox';
 import { login, logout } from './login';
+import { updateSettings } from './updateSettings';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
-const loginForm = document.querySelector('.form');
+const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
+const userDataForm = document.querySelector('.form-user-data');
+const userPasswordForm = document.querySelector('.form-user-password');
 
 // DELEGATION
 if (mapBox) {
@@ -16,7 +19,7 @@ if (mapBox) {
 
 if (loginForm) {
   loginForm.addEventListener('submit', e => {
-    e.preventDefault();
+    e.preventDefault(); // prevents the default which is a full page refresh
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -25,3 +28,37 @@ if (loginForm) {
 }
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
+
+if (userDataForm) {
+  userDataForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+
+    updateSettings('data', { name, email });
+  });
+}
+
+if (userPasswordForm) {
+  userPasswordForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const savePasswordBtn = document.querySelector('.btn--save-password');
+    const passwordCurrentInput = document.getElementById('password-current');
+    const newPasswordInput = document.getElementById('password');
+    const newPasswordConfirmInput = document.getElementById('password-confirm');
+
+    savePasswordBtn.textContent = 'Updating...';
+
+    await updateSettings('password', {
+      passwordCurrent: passwordCurrentInput.value,
+      newPassword: newPasswordInput.value,
+      newPasswordConfirm: newPasswordConfirmInput.value,
+    });
+
+    // RESETTING THE FIELDS
+    savePasswordBtn.textContent = 'Save password';
+    passwordCurrentInput.value = '';
+    newPasswordInput.value = '';
+    newPasswordConfirmInput.value = '';
+  });
+}
