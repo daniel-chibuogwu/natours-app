@@ -105,7 +105,7 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access.', 401), // goes to global error handler
     );
   // 2) Verification of token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // Error from here is handled Globally
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // Error from here is handled Globally (the Jwt errors comes from here)
 
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id); // if you delete a user it find it because we set it's active to false
@@ -127,6 +127,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // GRANT ACCESS TO PROTECTED ROUTE and add the current user to the req object
   req.user = currentUser; // the req travels from one middleware to another middleware so if we want to transfer data, we put it on the req object to be available somewhere else
+  res.locals.user = currentUser; // so that we can access the user in our templates
   next();
 });
 
@@ -250,7 +251,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(res, user);
 });
 
-// Only for rendered pages and shouldn’t send errors!
+// Only for rendered pages and shouldn’t send errors! (It's a Checker)
 exports.isLoggedIn = async (req, res, next) => {
   // 1) Getting token and check if it's there
   if (req.cookies.jwt) {
@@ -281,4 +282,3 @@ exports.isLoggedIn = async (req, res, next) => {
   }
   next();
 };
-
