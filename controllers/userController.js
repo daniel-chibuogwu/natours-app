@@ -40,7 +40,7 @@ exports.resizeUserPhoto = (req, res, next) => {
   // Processing Our Images by resizing, convert output format to jpeg only
   sharp(req.file.buffer)
     .resize(500, 500, {
-      position: 'right top',
+      position: 'top',
     })
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
