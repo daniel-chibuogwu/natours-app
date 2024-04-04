@@ -39,7 +39,9 @@ exports.resizeUserPhoto = (req, res, next) => {
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
   // Processing Our Images by resizing, convert output format to jpeg only
   sharp(req.file.buffer)
-    .resize(500, 500)
+    .resize(500, 500, {
+      position: 'right top',
+    })
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
     .toFile(`public/img/users/${req.file.filename}`);
