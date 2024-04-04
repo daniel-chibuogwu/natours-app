@@ -64,6 +64,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   // 2) Update the user document
   // we need to filter the body so that the user don't update anything (like role: 'admin') else asides the name and email.
   const filteredBody = filterObj(req.body, 'name', 'email');
+  // Updating the filename for the user image whenever a photo is uploaded
+  if (req.file) filteredBody.photo = req.file.filename;
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
