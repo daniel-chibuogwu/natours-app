@@ -1,7 +1,34 @@
+const multer = require('multer');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/users');
+  },
+  filename: (req, file, cb) => {
+    // user-3dde8f333-9292282.jpeg
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+
+// Filter to allow only image file types to pass and nothing else
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    // passing true for the filter to know that it passed
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+// THE MULTER UPLOAD CONFIG
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.uploadUserPhoto = upload.single('photo');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -24,8 +51,6 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  console.log('file', req.file);
-  console.log('body', req.body);
   // Remember that we get the user from req.user when using a 'Protected Route' by adding it as a middleware at the route definition
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
