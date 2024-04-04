@@ -24,6 +24,8 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log('file', req.file);
+  console.log('body', req.body);
   // Remember that we get the user from req.user when using a 'Protected Route' by adding it as a middleware at the route definition
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
