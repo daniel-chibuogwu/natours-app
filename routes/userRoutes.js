@@ -19,6 +19,7 @@ router.patch('/updateMyPassword', authController.updatePassword);
 router.patch(
   '/updateMe',
   userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
   userController.updateMe,
 );
 router.delete('/deleteMe', userController.deleteMe); // For the user and does not delete from the DB but set's active to false
