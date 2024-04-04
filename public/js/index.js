@@ -32,6 +32,7 @@ if (logOutBtn) logOutBtn.addEventListener('click', logout);
 if (userDataForm) {
   userDataForm.addEventListener('submit', e => {
     e.preventDefault();
+    
     // Creating a multipart/form-data
     const form = new FormData();
     form.append('name', document.getElementById('name').value);
