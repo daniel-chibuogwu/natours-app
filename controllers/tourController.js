@@ -1,7 +1,51 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.memoryStorage();
+
+// Filter to allow only image file types to pass and nothing else
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    // passing true for the filter to know that it passed
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+// THE MULTER UPLOAD CONFIG
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.uploadTourImages = upload.fields([
+  {
+    name: 'imageCover',
+    maxCount: 1,
+  },
+  { name: 'images', maxCount: 3 },
+]);
+// upload.single('photo') // for one and produces req.file
+// upload.array('images', 3) // for more than one but one field and produces req.files
+
+exports.resizeTourImages = (req, res, next) => {
+  // Files and not file
+  console.log(req.files);
+  // if there is no file or photo go to the next middleware without doing anything
+  // if (!req.file) return next();
+  // req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+  // // Processing Our Images by resizing, convert output format to jpeg only
+  // sharp(req.file.buffer)
+  //   .resize(500, 500, {
+  //     position: 'top',
+  //   })
+  //   .toFormat('jpeg')
+  //   .jpeg({ quality: 90 })
+  //   .toFile(`public/img/users/${req.file.filename}`);
+  next();
+};
 
 exports.createTour = factory.createOne(Tour);
 exports.getAllTours = factory.getAll(Tour);
