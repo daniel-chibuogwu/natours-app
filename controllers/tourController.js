@@ -30,22 +30,40 @@ exports.uploadTourImages = upload.fields([
 // upload.single('photo') // for one and produces req.file
 // upload.array('images', 3) // for more than one but one field and produces req.files
 
-exports.resizeTourImages = (req, res, next) => {
-  // Files and not file
-  console.log(req.files);
-  // if there is no file or photo go to the next middleware without doing anything
-  // if (!req.file) return next();
-  // req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  // // Processing Our Images by resizing, convert output format to jpeg only
-  // sharp(req.file.buffer)
-  //   .resize(500, 500, {
-  //     position: 'top',
-  //   })
-  //   .toFormat('jpeg')
-  //   .jpeg({ quality: 90 })
-  //   .toFile(`public/img/users/${req.file.filename}`);
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  // req.files and not req.file
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // 1) Cover Image
+  // Remember that we need to update the request body for the updateOne factory function enhance we add the image name on the req.body which is used to updated the DB
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  //  2) IMAGES
+  req.body.images = [];
+  // we need to make sure that each callback in the loop resolve it's promise before calling next();
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+      // Processing Image
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${filename}`);
+
+      // For the update function to run
+      req.body.images.push(filename);
+    }),
+  );
+
+  // Only move on when the processing above are completed
   next();
-};
+});
 
 exports.createTour = factory.createOne(Tour);
 exports.getAllTours = factory.getAll(Tour);
