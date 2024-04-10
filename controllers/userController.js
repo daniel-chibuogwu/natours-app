@@ -33,12 +33,12 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
 exports.uploadUserPhoto = upload.single('photo');
 
-exports.resizeUserPhoto = (req, res, next) => {
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   // if there is no file or photo go to the next middleware without doing anything
   if (!req.file) return next();
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
   // Processing Our Images by resizing, convert output format to jpeg only
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500, {
       position: 'top',
     })
@@ -46,7 +46,7 @@ exports.resizeUserPhoto = (req, res, next) => {
     .jpeg({ quality: 90 })
     .toFile(`public/img/users/${req.file.filename}`);
   next();
-};
+});
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};

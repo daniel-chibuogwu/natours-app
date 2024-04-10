@@ -1,7 +1,69 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.memoryStorage();
+
+// Filter to allow only image file types to pass and nothing else
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    // passing true for the filter to know that it passed
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+// THE MULTER UPLOAD CONFIG
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.uploadTourImages = upload.fields([
+  {
+    name: 'imageCover',
+    maxCount: 1,
+  },
+  { name: 'images', maxCount: 3 },
+]);
+// upload.single('photo') // for one and produces req.file
+// upload.array('images', 3) // for more than one but one field and produces req.files
+
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  // req.files and not req.file
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // 1) Cover Image
+  // Remember that we need to update the request body for the updateOne factory function enhance we add the image name on the req.body which is used to updated the DB
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  //  2) IMAGES
+  req.body.images = [];
+  // we need to make sure that each callback in the loop resolve it's promise before calling next();
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+      // Processing Image
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${filename}`);
+
+      // For the update function to run
+      req.body.images.push(filename);
+    }),
+  );
+
+  // Only move on when the processing above are completed
+  next();
+});
 
 exports.createTour = factory.createOne(Tour);
 exports.getAllTours = factory.getAll(Tour);
