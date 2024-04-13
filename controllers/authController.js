@@ -53,6 +53,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm,
     passwordChangedAt,
   });
+
+  // Sending Welcome Email to New User
   const url = `${req.protocol}://${req.get('host')}/me`;
   await new Email(newUser, url).sendWelcome();
 
@@ -162,15 +164,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     'host',
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
-
   // Sending Mail and Handling error
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: 'Your password reset token (valid for 10 mins)',
-    //   message,
-    // });
+    await new Email(user, resetURL).sendPasswordReset();
+
     // we can't send the reset token here unless anyone can reset anyones account so it must be in the user's email where only them have access to
     res.status(200).json({
       status: 'success',

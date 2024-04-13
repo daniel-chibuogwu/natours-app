@@ -12766,7 +12766,7 @@ function () {
         case 0:
           _context.prev = 0;
           _context.next = 3;
-          return _axios.default.post('http://localhost:3000/api/v1/users/login', {
+          return _axios.default.post('http://127.0.0.1:3000/api/v1/users/login', {
             email: email,
             password: password
           });
@@ -12815,7 +12815,7 @@ function () {
         case 0:
           _context2.prev = 0;
           _context2.next = 3;
-          return _axios.default.get('http://localhost:3000/api/v1/users/logout');
+          return _axios.default.get('http://127.0.0.1:3000/api/v1/users/logout');
 
         case 3:
           res = _context2.sent;
@@ -13286,7 +13286,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58596" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56267" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
