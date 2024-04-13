@@ -13,9 +13,17 @@ module.exports = class Email {
   newTransport() {
     // We must return from this function so that we can chain the sendMain function for the transporter
     if (process.env.NODE_ENV === 'production') {
-      // Sendgrid
-      return 1;
+      // Sendgrid OR FOR PRODUCTION
+      return nodemailer.createTransport({
+        host: process.env.SENDGRID_HOST,
+        port: process.env.SENDGRID_PORT,
+        auth: {
+          user: process.env.SENDGRID_USERNAME,
+          pass: process.env.SENDGRID_PASSWORD,
+        },
+      });
     }
+    // FOR DEVELOPMENT
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
