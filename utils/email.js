@@ -10,7 +10,8 @@ module.exports = class Email {
     this.from = `Daniel Chibuogwu <${process.env.EMAIL_FROM}>`;
   }
 
-  createTransport() {
+  newTransport() {
+    // We must return from this function so that we can chain the sendMain function for the transporter
     if (process.env.NODE_ENV === 'production') {
       // Sendgrid
       return 1;
@@ -25,9 +26,13 @@ module.exports = class Email {
     });
   }
 
-  send(template, subject) {
+  async send(template, subject) {
     // 1) Render HTML based on pug template
-    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`);
+    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+      firstName: this.firstName,
+      url: this.url,
+      subject,
+    });
 
     // 2) Define the Email Options
     const mailOptions = {
@@ -35,12 +40,13 @@ module.exports = class Email {
       to: this.to,
       subject,
       html,
-      text: htmlToText.fromString(html),
+      text: htmlToText.convert(html),
     };
     // 3) Create a transport and Send email
+    await this.newTransport().sendMail(mailOptions);
   }
 
-  sendWelcome() {
-    this.send('welcome', 'Welcome to the Natours Familyy!');
+  async sendWelcome() {
+    await this.send('welcome', 'Welcome to the Natours Familyy!');
   }
 };
