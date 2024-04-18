@@ -16,14 +16,21 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email, // remember that this is a protected router and the user is always on the req object because of this,
     client_reference_id: req.params.tourID,
+    mode: 'payment',
     // Information about the product
     line_items: [
       {
-        name: `${tour.name} Tour`,
-        description: tour.summary,
-        images: [`https://www.natours.dev/img/tours/${tour.imageCover}.jpg`],
-        price: tour.price * 100,
-        currency: 'usd',
+        price_data: {
+          product_data: {
+            name: `${tour.name} Tour`,
+            description: tour.summary,
+            images: [
+              `https://www.natours.dev/img/tours/${tour.imageCover}.jpg`,
+            ],
+          },
+          currency: 'usd',
+          unit_amount: tour.price * 100,
+        },
         quantity: 1,
       },
     ],

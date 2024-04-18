@@ -13183,7 +13183,8 @@ var mapBox = document.getElementById('map');
 var loginForm = document.querySelector('.form--login');
 var logOutBtn = document.querySelector('.nav__el--logout');
 var userDataForm = document.querySelector('.form-user-data');
-var userPasswordForm = document.querySelector('.form-user-password'); // DELEGATION
+var userPasswordForm = document.querySelector('.form-user-password');
+var bookNowBtn = document.getElementById('book-tour'); // DELEGATION
 
 if (mapBox) {
   var locations = JSON.parse(mapBox.dataset.locations);
@@ -13258,6 +13259,14 @@ if (userPasswordForm) {
     };
   }());
 }
+
+if (bookNowBtn) {
+  bookNowBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    var tourID = bookNowBtn.dataset.tourId;
+    console.log('Tour ID', tourID);
+  });
+}
 },{"./mapbox":"mapbox.js","./login":"login.js","./updateSettings":"updateSettings.js"}],"../../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -13286,7 +13295,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56267" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64965" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
