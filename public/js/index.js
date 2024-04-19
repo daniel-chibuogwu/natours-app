@@ -3,6 +3,7 @@
 import { displayMap } from './mapbox';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
+import { bookTour } from './stripe';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
@@ -72,9 +73,8 @@ if (userPasswordForm) {
 
 if (bookNowBtn) {
   bookNowBtn.addEventListener('click', e => {
-    e.preventDefault();
-
-    const tourID = bookNowBtn.dataset.tourId;
-    console.log('Tour ID', tourID);
+    e.target.textContent = 'Processing...';
+    const { tourId } = e.target.dataset;
+    bookTour(tourId);
   });
 }
