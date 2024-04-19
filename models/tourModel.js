@@ -175,7 +175,7 @@ tourSchema.pre(/^find/, function (next) {
   // with populate we are going to fill our query with the referenced data for guides and it's makes another query which can affect performance
   this.populate({
     path: 'guides',
-    select: '-__v',
+    select: '-__v -passwordChangedAt',
   });
   next();
 });

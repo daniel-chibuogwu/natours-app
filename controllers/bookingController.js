@@ -70,7 +70,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   ).sendBookingConfirmed(populatedBooking.tour.name);
 
   // Redirect to remove the query parameters
-  res.redirect(`${rootURL(req)}${req.originalUrl.split('?')[0]}`);
+  res.redirect(`${req.originalUrl.split('?')[0]}`);
 });
 
 exports.getAllBookings = factory.getAll(Booking);
