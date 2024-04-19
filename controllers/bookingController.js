@@ -69,7 +69,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
     `${rootURL(req)}/${populatedBooking.tour.slug}`,
   ).sendBookingConfirmed(populatedBooking.tour.name);
 
-  // Redirect to remove the query parameters
+  // Redirect to remove the query parameters, to make secure and not show on the client's browser
   res.redirect(`${req.originalUrl.split('?')[0]}`);
 });
 
