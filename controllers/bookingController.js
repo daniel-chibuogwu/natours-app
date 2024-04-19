@@ -4,6 +4,7 @@ const Booking = require('../models/bookingModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+const Email = require('../utils/email');
 
 const rootURL = req => `${req.protocol}://${req.get('host')}`;
 
@@ -55,7 +56,18 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   if (!tour && !user && !price) return next();
 
   // Create  Booking
-  await Booking.create({ tour, user, price });
+  const newBooking = await Booking.create({ tour, user, price });
+
+  // Find the newly created booking and populate the referenced fields
+  const populatedBooking = await Booking.findById(newBooking._id)
+    .populate('user')
+    .populate('tour');
+
+  //Send Confirmation Email
+  await new Email(
+    populatedBooking.user,
+    `${rootURL(req)}/${populatedBooking.tour.slug}`,
+  ).sendBookingConfirmed(populatedBooking.tour.name);
 
   // Redirect to remove the query parameters
   res.redirect(`${rootURL(req)}${req.originalUrl.split('?')[0]}`);
