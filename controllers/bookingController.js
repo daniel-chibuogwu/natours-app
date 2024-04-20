@@ -78,3 +78,4 @@ exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.createBooking = factory.createOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
+
