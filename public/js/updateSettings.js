@@ -7,10 +7,7 @@ import { showAlert } from './alert';
 export const updateSettings = async (type, data) => {
   try {
     const urlFragment = type === 'password' ? 'updateMyPassword' : 'updateMe';
-    const res = await axios.patch(
-      `http://localhost:3000/api/v1/users/${urlFragment}`,
-      data,
-    );
+    const res = await axios.patch(`/api/v1/users/${urlFragment}`, data);
     if (res.data.status === 'success') {
       showAlert(
         'success',
