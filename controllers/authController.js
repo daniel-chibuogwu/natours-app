@@ -11,18 +11,19 @@ const signToken = id =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (res, user, statusCode = 200) => {
+const createSendToken = (req, res, user, statusCode = 200) => {
   const token = signToken(user._id); // using the user id as a payload for the JWT
 
-  const cookieOptions = {
+  // Don't assume all production and deployed applications are secured HTTPS so we need to change the if statement here
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // secured using https
+
+  res.cookie('jwt', token, {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true, // can't be accessed or modified by the browser
-  };
-
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // secured using https
-  res.cookie('jwt', token, cookieOptions);
+    secure: req.secure || req.headers('x-forwarded-proto') === 'https', // setting to true is it's https
+  });
 
   // Remove The Password from the output
   user.password = undefined;
@@ -58,7 +59,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const url = `${req.protocol}://${req.get('host')}/me`;
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(res, newUser, 201);
+  createSendToken(req, res, newUser, 201);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -79,7 +80,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password!', 401));
   }
   // 3) If everything is okay, send 'token' to client
-  createSendToken(res, user);
+  createSendToken(req, res, user);
 });
 
 exports.logout = (req, res, next) => {
@@ -211,7 +212,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3) Update the changedPasswordAt property for the user using a 'pre'save middleware for old and modified documents (Check middlewares in userModel)
 
   // 4) Log the user in, send JWT
-  createSendToken(res, user);
+  createSendToken(req, res, user);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -248,7 +249,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   //////// Remember Password changedAt updates thanks to middleware in user model
 
   // 4) Log user in, send JWT
-  createSendToken(res, user);
+  createSendToken(req, res, user);
 });
 
 // Only for rendered pages and shouldn’t send errors! (It's a Checker)
