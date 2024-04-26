@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 // UNCAUGHT EXCEPTIONS: all synchronous errors or bugs caught in our code but are not handled anywhere
 // We put this at the top so that it can catch all synchronous errors in our app unlike the one for async operations
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
   process.exit(1);
@@ -36,11 +36,20 @@ const server = app.listen(port, () => {
 });
 
 // Handling unhandled Rejections GLOBALLY (FOR ASYCHRONOUS CODE) by subscribing to an event that gets trigger by the 'process' using this event listener
-process.on('unhandledRejection', (err) => {
+process.on('unhandledRejection', err => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   console.log(err.name, err.message);
   // Killing the server "Gracefully" by doing it like thiss
   server.close(() => {
     process.exit(1);
+  });
+});
+
+// Heroku sends this event every 24 hours to restart and keep our server healthy but it's abrupt and keep requests pending
+process.on('SIGTERM', () => {
+  console.log('SIGTERM RECEIVED 👋🏾. Shutting down gracefully');
+  server.close(() => {
+    // We don't need to exit manually as SIGTERM would do that for us. Server.close would just make sure that all pending requests are settled before the server shuts down
+    console.log('🚀 Process terminated!');
   });
 });
