@@ -20,6 +20,9 @@ const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
 
+// Railway uses proxies that why req.secure doesn't work in the auth controller as the proxies change the request object - We need to tell our app to trust proxies even for the rate limiter to work
+app.enable('trust proxy');
+
 // Setings for Pug
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
