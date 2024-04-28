@@ -9,6 +9,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -28,6 +29,21 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // 1) GLOBAL MIDDLEWARES
+// Implement CORS - Access-Control-Allow-Origin to * i.e everything
+app.use(cors()); // we can call the middleware just for a particular route with want to implement CORS for e.g app.use('/api/v1/tours', cors(), tourRouter);
+// If for instance Frontend - natour.com and Backend - api.natours.io use the below
+// app.use(
+//   cors({
+//     origin: 'https://www.natours.com',
+//   }),
+// );
+
+// .options (a preflight request or confirmation request) is similar to post, put,patch or get an http method
+// we can respond to. It's not to set any options we are just using to fix CORS  issue with non-simple requests like put, patch or delete
+app.options('*', cors());
+// Allowing for a single route
+// app.options('/api/v1/tours/:id', cors());
+
 // Serviing Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 

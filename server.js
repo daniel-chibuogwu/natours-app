@@ -50,6 +50,6 @@ process.on('SIGTERM', () => {
   console.log('SIGTERM RECEIVED 👋🏾. Shutting down gracefully');
   server.close(() => {
     // We don't need to exit manually as SIGTERM would do that for us. Server.close would just make sure that all pending requests are settled before the server shuts down
-    console.log('🚀 Process terminated!');
+    console.log('💥 Process terminated!');
   });
 });
