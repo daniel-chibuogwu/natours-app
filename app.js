@@ -38,6 +38,12 @@ app.use(cors()); // we can call the middleware just for a particular route with 
 //   }),
 // );
 
+// .options (a preflight request or confirmation request) is similar to post, put,patch or get an http method
+// we can respond to. It's not to set any options we are just using to fix CORS  issue with non-simple requests like put, patch or delete
+app.options('*', cors());
+// Allowing for a single route
+// app.options('/api/v1/tours/:id', cors());
+
 // Serviing Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
