@@ -18,7 +18,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // Information about the session
     payment_method_types: ['card'],
     // Not secure yet has anyone can create a booking now without paying if they know the URL
-    success_url: `${rootURL(req)}?tour=${req.params.tourID}&user=${
+    success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
       req.user.id
     }&price=${tour.price}`,
     cancel_url: `${rootURL(req)}/tour/${tour.slug}`,
@@ -58,7 +58,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // Create  Booking
   const newBooking = await Booking.create({ tour, user, price });
 
-  // Find the newly created booking and populate the referenced fields
+  // Find the newly created booking and populate the referenced fields so we can use it for the mail
   const populatedBooking = await Booking.findById(newBooking._id)
     .populate('user')
     .populate('tour');
@@ -78,4 +78,3 @@ exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.createBooking = factory.createOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
-
