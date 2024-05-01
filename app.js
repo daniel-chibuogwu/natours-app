@@ -17,6 +17,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
@@ -65,6 +66,8 @@ app.use('/api', limiter);
 
 // Body Parser: reading data from the body into req.body
 app.use(express.json({ limit: '10kb' }));
+
+app.post('/webhook-checkout', bookingController.webhookCheckout);
 // For parsing url encoded FORM DATA
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 

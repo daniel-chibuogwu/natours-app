@@ -18,9 +18,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // Information about the session
     payment_method_types: ['card'],
     // Not secure yet has anyone can create a booking now without paying if they know the URL
-    success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
-      req.user.id
-    }&price=${tour.price}`,
+    // success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
+    //   req.user.id
+    // }&price=${tour.price}`,
+    success_url: `${rootURL(req)}/my-tours`,
     cancel_url: `${rootURL(req)}/tour/${tour.slug}`,
     customer_email: req.user.email, // remember that this is a protected router and the user is always on the req object because of this,
     client_reference_id: req.params.tourID,
@@ -49,29 +50,31 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-  //This is only TEMPORARY, because it's not secure as every with the stripe success URL can create a Booking without payment
-  const { tour, user, price } = req.query;
+// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+//   //This is only TEMPORARY, because it's not secure as every with the stripe success URL can create a Booking without payment
+//   const { tour, user, price } = req.query;
 
-  if (!tour && !user && !price) return next();
+//   if (!tour && !user && !price) return next();
 
-  // Create  Booking
-  const newBooking = await Booking.create({ tour, user, price });
+//   // Create  Booking
+//   const newBooking = await Booking.create({ tour, user, price });
 
-  // Find the newly created booking and populate the referenced fields so we can use it for the mail
-  const populatedBooking = await Booking.findById(newBooking._id)
-    .populate('user')
-    .populate('tour');
+//   // Find the newly created booking and populate the referenced fields so we can use it for the mail
+//   const populatedBooking = await Booking.findById(newBooking._id)
+//     .populate('user')
+//     .populate('tour');
 
-  //Send Confirmation Email
-  await new Email(
-    populatedBooking.user,
-    `${rootURL(req)}/${populatedBooking.tour.slug}`,
-  ).sendBookingConfirmed(populatedBooking.tour.name);
+//   //Send Confirmation Email
+//   await new Email(
+//     populatedBooking.user,
+//     `${rootURL(req)}/${populatedBooking.tour.slug}`,
+//   ).sendBookingConfirmed(populatedBooking.tour.name);
 
-  // Redirect to remove the query parameters, to make secure and not show on the client's browser
-  res.redirect(`${req.originalUrl.split('?')[0]}`);
-});
+//   // Redirect to remove the query parameters, to make secure and not show on the client's browser
+//   res.redirect(`${req.originalUrl.split('?')[0]}`);
+// });
+
+exports.webhookCheckout = (req, res, next) => {};
 
 exports.getAllBookings = factory.getAll(Booking);
 exports.getBooking = factory.getOne(Booking);
