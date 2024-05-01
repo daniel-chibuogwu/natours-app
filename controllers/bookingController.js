@@ -5,6 +5,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 const Email = require('../utils/email');
+const User = require('../models/userModel');
 
 const rootURL = req => `${req.protocol}://${req.get('host')}`;
 
@@ -18,9 +19,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // Information about the session
     payment_method_types: ['card'],
     // Not secure yet has anyone can create a booking now without paying if they know the URL
-    success_url: `${rootURL(req)}?tour=${req.params.tourID}&user=${
-      req.user.id
-    }&price=${tour.price}`,
+    // success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
+    //   req.user.id
+    // }&price=${tour.price}`,
+    success_url: `${rootURL(req)}/my-tours`,
     cancel_url: `${rootURL(req)}/tour/${tour.slug}`,
     customer_email: req.user.email, // remember that this is a protected router and the user is always on the req object because of this,
     client_reference_id: req.params.tourID,
@@ -49,33 +51,61 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-  //This is only TEMPORARY, because it's not secure as every with the stripe success URL can create a Booking without payment
-  const { tour, user, price } = req.query;
+// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+//   //This is only TEMPORARY, because it's not secure as every with the stripe success URL can create a Booking without payment
+//   const { tour, user, price } = req.query;
 
-  if (!tour && !user && !price) return next();
+//   if (!tour && !user && !price) return next();
 
-  // Create  Booking
-  const newBooking = await Booking.create({ tour, user, price });
+//   // Create  Booking
+//   const newBooking = await Booking.create({ tour, user, price });
 
-  // Find the newly created booking and populate the referenced fields
-  const populatedBooking = await Booking.findById(newBooking._id)
-    .populate('user')
-    .populate('tour');
+//   // Find the newly created booking and populate the referenced fields so we can use it for the mail
+//   const populatedBooking = await Booking.findById(newBooking._id)
+//     .populate('user')
+//     .populate('tour');
 
-  //Send Confirmation Email
-  await new Email(
-    populatedBooking.user,
-    `${rootURL(req)}/${populatedBooking.tour.slug}`,
-  ).sendBookingConfirmed(populatedBooking.tour.name);
+//   //Send Confirmation Email
+//   await new Email(
+//     populatedBooking.user,
+//     `${rootURL(req)}/${populatedBooking.tour.slug}`,
+//   ).sendBookingConfirmed(populatedBooking.tour.name);
 
-  // Redirect to remove the query parameters, to make secure and not show on the client's browser
-  res.redirect(`${req.originalUrl.split('?')[0]}`);
-});
+//   // Redirect to remove the query parameters, to make secure and not show on the client's browser
+//   res.redirect(`${req.originalUrl.split('?')[0]}`);
+// });
+const createBookingCheckout = async session => {
+  const tour = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const price = session.line_items[0].price_data.unit_amount / 100;
+
+  await Booking.create({ tour, user, price });
+};
+
+exports.webhookCheckout = (req, res, next) => {
+  const signature = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.log(`⚠️  Webhook signature verification failed.`, err.message);
+    return res.sendStatus(400);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    createBookingCheckout(event.data.object);
+  }
+
+  res.status(200).json({ received: true });
+};
 
 exports.getAllBookings = factory.getAll(Booking);
 exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.createBooking = factory.createOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
-
