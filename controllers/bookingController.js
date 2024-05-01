@@ -34,7 +34,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
           product_data: {
             name: `${tour.name} Tour`,
             description: tour.summary,
-            images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
+            images: [`${rootURL(req)}/${tour.imageCover}`],
           },
           currency: 'usd',
           unit_amount: tour.price * 100,
@@ -101,7 +101,7 @@ exports.webhookCheckout = (req, res, next) => {
     createBookingCheckout(event.data.object);
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).json({ received: true, codedBy: 'Daniel Chillings' });
 };
 
 exports.getAllBookings = factory.getAll(Booking);
