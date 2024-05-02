@@ -2,6 +2,7 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
 const reviewRouter = require('./reviewRoutes');
+const bookingRouter = require('./bookingRoutes');
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ const router = express.Router();
 
 // Nested Routes -  We use mergeParams on the review router to make this 'redirecting' work
 router.use('/:tourId/reviews', reviewRouter);
+router.use('/:tourId/bookings', bookingRouter);
 
 // Aggregations
 router.get(

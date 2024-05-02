@@ -75,6 +75,7 @@ exports.getAll = Model =>
     // To Allow for nested GET reviews on Tour (hack)
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
+    if (req.params.userId) filter = { user: req.params.userId };
     // BUILD QUERY
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
@@ -85,6 +86,10 @@ exports.getAll = Model =>
     // EXECUTE QUERY
     // const docs = await features.query.explain();
     const docs = await features.query;
+
+    // Get the total document count efficiently (assuming Mongoose model)
+    // const totalCount = await Model.countDocuments();
+
     // We are not handle errors for this before even if the tours.lenght is 0 it is still a valid response and not an error when we find nothing
     // SEND RESPONSE
     res.status(200).json({
@@ -94,5 +99,8 @@ exports.getAll = Model =>
       data: {
         data: docs,
       },
+      page_limit: req.query.limit * 1 || 10,
+      current_page: req.query.page * 1 || 1,
+      // last_page: Math.ceil(totalCount / (req.query.limit * 1 || 10)),
     });
   });
