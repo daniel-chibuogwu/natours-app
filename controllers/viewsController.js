@@ -83,3 +83,12 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
     user: updatedUser,
   });
 });
+
+exports.sendAlertToTemplate = (req, res, next) => {
+  const { alertMsg } = req.query;
+
+  if (alertMsg) {
+    res.locals.alertMsg = alertMsg;
+  }
+  next();
+};

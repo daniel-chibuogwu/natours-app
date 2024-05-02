@@ -22,7 +22,11 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
     //   req.user.id
     // }&price=${tour.price}`,
-    success_url: `${rootURL(req)}/my-tours`,
+    success_url: `${rootURL(
+      req,
+    )}/my-tours?alertMsg=Congratulations! You've successfully booked the ${
+      tour.name
+    } Tour 🎉`,
     cancel_url: `${rootURL(req)}/tour/${tour.slug}`,
     customer_email: req.user.email, // remember that this is a protected router and the user is always on the req object because of this,
     client_reference_id: req.params.tourID,
