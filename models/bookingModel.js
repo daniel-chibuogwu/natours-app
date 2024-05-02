@@ -25,6 +25,8 @@ const bookingSchema = new mongoose.Schema({
     default: true,
   },
 });
+// Improving read performance for reading
+bookingSchema.index({ user: 1, tour: 1 });
 
 // We can populate this query for all the booking because only the admin and guides have access to it so performance wouldn't be a problem
 bookingSchema.pre(/^find/, function (next) {
