@@ -2,7 +2,7 @@ const express = require('express');
 const bookingController = require('../controllers/bookingController');
 const authController = require('../controllers/authController');
 
-// Merging params for nested routes to get access to tourID
+// Merging params for nested routes to get access to tourID and userID
 const router = express.Router({ mergeParams: true });
 
 router.use(authController.protect);
