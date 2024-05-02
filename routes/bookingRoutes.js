@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get('/checkout-session/:tourID', bookingController.getCheckoutSession);
+router.get('/me', bookingController.getMyBookings);
 
 router.use(authController.restrictTo('admin', 'lead-guide'));
 router
