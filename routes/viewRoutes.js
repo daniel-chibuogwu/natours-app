@@ -5,11 +5,12 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
+router.use(viewsController.alerts);
+
 router.get('/me', authController.protect, viewsController.getAccount);
 router.get(
   '/my-tours',
   authController.protect,
-  viewsController.sendAlertToTemplate,
   // bookingController.createBookingCheckout,
   viewsController.getMyTours,
 );

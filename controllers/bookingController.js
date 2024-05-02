@@ -22,11 +22,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // success_url: `${rootURL(req)}/my-tours?tour=${req.params.tourID}&user=${
     //   req.user.id
     // }&price=${tour.price}`,
-    success_url: `${rootURL(
-      req,
-    )}/my-tours?alertMsg=Congratulations! You've successfully booked the ${
-      tour.name
-    } Tour 🎉`,
+    success_url: `${rootURL(req)}/my-tours?alert=booking`,
     cancel_url: `${rootURL(req)}/tour/${tour.slug}`,
     customer_email: req.user.email, // remember that this is a protected router and the user is always on the req object because of this,
     client_reference_id: req.params.tourID,
@@ -78,13 +74,24 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 //   // Redirect to remove the query parameters, to make secure and not show on the client's browser
 //   res.redirect(`${req.originalUrl.split('?')[0]}`);
 // });
-const createBookingCheckout = async session => {
+const createBookingCheckout = catchAsync(async (session, req) => {
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.amount_total / 100;
 
-  await Booking.create({ tour, user, price });
-};
+  const newBooking = await Booking.create({ tour, user, price });
+
+  //   // Find the newly created booking and populate the referenced fields so we can use it for the mail
+  const populatedBooking = await Booking.findById(newBooking._id)
+    .populate('user')
+    .populate('tour');
+
+  //Send Confirmation Email
+  await new Email(
+    populatedBooking.user,
+    `${rootURL(req)}/${populatedBooking.tour.slug}`,
+  ).sendBookingConfirmed(populatedBooking.tour.name);
+});
 
 exports.webhookCheckout = (req, res, next) => {
   const signature = req.headers['stripe-signature'];
@@ -102,7 +109,7 @@ exports.webhookCheckout = (req, res, next) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    createBookingCheckout(event.data.object);
+    createBookingCheckout(event.data.object, req);
   }
 
   res.status(200).json({ received: true, codedBy: 'Daniel Chillings' });

@@ -84,11 +84,13 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.sendAlertToTemplate = (req, res, next) => {
-  const { alertMsg } = req.query;
+exports.alerts = (req, res, next) => {
+  const { alert } = req.query;
 
-  if (alertMsg) {
-    res.locals.alertMsg = alertMsg;
+  if (alert === 'booking') {
+    res.locals.alert =
+      "Your booking was successful! Please check your email for a confirmation. If  your booking doesn't show up immediately, please come back later.";
   }
+
   next();
 };

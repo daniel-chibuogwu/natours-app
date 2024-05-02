@@ -81,6 +81,4 @@ if (bookNowBtn) {
   });
 }
 
-if (alert) {
-  showAlert('success', alert);
-}
+if (alert) showAlert('success', alert, 20);
