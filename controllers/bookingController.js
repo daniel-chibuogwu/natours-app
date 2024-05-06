@@ -132,3 +132,44 @@ exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.createBooking = factory.createOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
+
+exports.testBooking = catchAsync(async (req, res, next) => {
+  const bookingDate = req.body.date.trim();
+
+  const tour = await Tour.findById(req.params.id);
+
+  if (!tour || !bookingDate)
+    return next(
+      new AppError(
+        "Sorry can't book a tour we couldn't find! Also check the date",
+        404,
+      ),
+    );
+  // Find date instance that user is booking for
+  const tourDateInfo = tour.startDates.find(
+    d => d.date.toISOString() === bookingDate,
+  );
+
+  if (!tourDateInfo) return next(new AppError('Tour date is not found!', 404));
+
+  if (tourDateInfo.soldOut)
+    return next(new AppError('Tour date is completely sold out!', 400));
+
+  // Create Booking
+
+  // Update Tour date's participant and soldout field
+  tour.startDates.forEach(info => {
+    if (info.date.toISOString() === bookingDate) {
+      info.participants += 1;
+      info.soldOut = info.participants >= tour.maxGroupSize;
+      tour.markModified('startDates');
+    }
+  });
+
+  await tour.save();
+
+  res.status(200).json({
+    status: 'success',
+    tour,
+  });
+});

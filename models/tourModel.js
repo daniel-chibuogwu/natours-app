@@ -3,6 +3,19 @@ const slugify = require('slugify');
 // const validator = require('validator');
 
 //Schema defines the structure of documents in a MongoDB collection,
+
+const tourDatesSchema = new mongoose.Schema({
+  date: Date,
+  participants: {
+    type: Number,
+    default: 0,
+  },
+  soldOut: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -78,7 +91,7 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false, // To make it absent in the response
     },
-    startDates: [Date],
+    startDates: [tourDatesSchema],
     secretTour: {
       type: Boolean,
       default: false,
